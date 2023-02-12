@@ -86,9 +86,9 @@ interface ListItem {
 }
 type LoadText = '上拉加载更多' | '加载中' | '没有更多了'
 
-let list = ref<ListItem[]>([])
-let page = ref(1)
-let loadText = ref<LoadText>('上拉加载更多')
+const list = ref<ListItem[]>([])
+const page = ref(1)
+const loadText = ref<LoadText>('上拉加载更多')
 
 const getList = () => {
   return http
@@ -104,7 +104,7 @@ const getList = () => {
       }
     })
 }
-let statusText = computed(() => {
+const statusText = computed(() => {
   return (status: number) => {
     const map: Record<string, string> = {
       0: '未开始',
