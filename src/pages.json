@@ -33,6 +33,15 @@
           }
         }
       }
+    },
+    {
+      "path": "pages/live/live",
+      "style": {
+        "app-plus": {
+          // 禁用原生导航栏
+          "titleNView": false
+        }
+      }
     }
   ],
   "globalStyle": {

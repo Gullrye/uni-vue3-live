@@ -24,7 +24,12 @@
     </swiper>
 
     <view class="list flex flex-wrap">
-      <view class="list-item" v-for="item in list" :key="item.id">
+      <view
+        class="list-item"
+        v-for="item in list"
+        :key="item.id"
+        @click="openLive(item.id)"
+      >
         <image
           class="rounded"
           :src="item.cover || '/static/demo/1.jpg'"
@@ -110,6 +115,9 @@ let statusText = computed(() => {
     return map[status]
   }
 })
+const openLive = (id: number) => {
+  uni.navigateTo({ url: `../live/live?id=${id}` })
+}
 
 onMounted(() => {
   getList()
