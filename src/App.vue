@@ -10,6 +10,10 @@ onLaunch(() => {
     src: "url('http://at.alicdn.com/t/font_1859985_7mxozsfdvib.ttf')"
   })
   // #endif
+
+  uni.onTabBarMidButtonTap(() => {
+    console.log('点击了中间按钮')
+  })
 })
 onShow(() => {
   console.log('App Show')
