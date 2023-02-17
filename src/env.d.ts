@@ -14,3 +14,13 @@ declare module '@hyoga/uni-socket.io' {
   }
   export default function io(url: string, options?: any): Socket
 }
+
+interface UserInfo {
+  created_time: string
+  id: number
+  username: string
+  avatar: string
+  coin: number
+  updated_time: string
+  token: string
+}

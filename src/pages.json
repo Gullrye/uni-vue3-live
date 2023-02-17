@@ -1,6 +1,13 @@
 {
   "pages": [
     {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationBarBackgroundColor": "#fff"
+      }
+    },
+    {
       "path": "pages/index/index",
       "style": {
         "enablePullDownRefresh": true,

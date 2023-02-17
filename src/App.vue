@@ -16,7 +16,7 @@ onLaunch(() => {
   })
 
   const socketStore = useSocketStore()
-  socketStore.connectSocket()
+  socketStore.initUserInfo()
 })
 onShow(() => {
   console.log('App Show')

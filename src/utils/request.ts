@@ -94,8 +94,8 @@ class Http {
   get<T>(url: string, config?: CustomConfig) {
     return this.request<T>({ url, method: 'GET' }, config)
   }
-  post(url: string, data: RequestData, config?: CustomConfig) {
-    return this.request({ url, data, method: 'POST' }, config)
+  post<T>(url: string, data: RequestData, config?: CustomConfig) {
+    return this.request<T>({ url, data, method: 'POST' }, config)
   }
   delete(url: string, data: RequestData, config?: CustomConfig) {
     return this.request({ url, data, method: 'DELETE' }, config)
