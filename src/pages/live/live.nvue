@@ -1,41 +1,370 @@
 <template>
-  <view class="content">
-    <image class="logo" src="/static/logo.png" />
-    <view class="text-area">
-      <text class="title">{{ title }}</text>
+  <view class="page">
+    <video
+      class="flex-1"
+      src="https://img.cdn.aliyun.dcloud.net.cn/guide/uniapp/%E7%AC%AC1%E8%AE%B2%EF%BC%88uni-app%E4%BA%A7%E5%93%81%E4%BB%8B%E7%BB%8D%EF%BC%89-%20DCloud%E5%AE%98%E6%96%B9%E8%A7%86%E9%A2%91%E6%95%99%E7%A8%8B@20200317.mp4"
+      autoplay
+      :controls="false"
+    ></video>
+
+    <view class="header">
+      <view class="flex-row justify-between">
+        <!-- 主播信息-->
+        <view class="anchor rounded-circle">
+          <image
+            class="icon-size rounded-circle"
+            :src="liveDetail.user.avatar || '/static/tabbar/min.png'"
+            mode="aspectFill"
+          />
+          <view class="flex-1">
+            <text class="text-white font">{{ liveDetail.user.username }}</text>
+            <text class="text-white font-sm">{{ liveDetail.look_count }}</text>
+          </view>
+          <!-- 关注 -->
+          <view class="icon-add rounded-circle bg-danger icon-size">
+            <text class="text-white">+</text>
+          </view>
+        </view>
+        <!-- 观众信息 -->
+        <view class="audience rounded-circle">
+          <scroll-view scroll-x="true" class="flex-row flex-1">
+            <view class="icon-size" v-for="(item, index) in list" :key="index">
+              <image
+                class="icon-size rounded-circle"
+                :src="item.avatar || '/static/tabbar/min.png'"
+              />
+            </view>
+          </scroll-view>
+          <view class="icon-count icon-size rounded-circle bg-danger">
+            <text class="text-white font-sm">{{ list.length }}</text>
+          </view>
+        </view>
+      </view>
+      <!-- 金币 -->
+      <view style="height: 80rpx" class="px-2 my-2">
+        <view
+          style="width: 325rpx; background-color: rgba(0, 0, 0, 0.4)"
+          class="flex rounded-circle align-center"
+        >
+          <text class="p-1 text-warning">金币</text>
+          <text class="text-white font">{{ liveDetail.coin }}</text>
+        </view>
+      </view>
+      <!-- 收到礼物 -->
+      <FGift ref="fGiftRef"></FGift>
     </view>
+
+    <!-- 弹幕 -->
+    <FDanMu ref="danmuRef"></FDanMu>
+
+    <!-- 底部 -->
+    <view class="footer flex-row align-center justify-between">
+      <view class="px-2">
+        <view class="btn px-3" @click="switchInput(1)">
+          <text class="text-white font">说点什么...</text>
+        </view>
+      </view>
+      <view class="flex-row align-center">
+        <view class="btn btn-icon">
+          <text class="iconfont text-white" style="font-size: 40px"
+            >&#xe633;</text
+          >
+        </view>
+        <view @click="switchGift(1)" class="btn btn-icon bg-warning">
+          <text class="iconfont">&#xe67c;</text>
+        </view>
+        <view @click="back" class="btn btn-icon">
+          <text class="iconfont text-white">&#xe607;</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 输入框弹出层 -->
+    <uni-popup ref="inputRef" type="bottom">
+      <view class="bg-white flex align-center px-3" style="height: 120rpx">
+        <input
+          type="text"
+          class="border rounded flex-1 px-3 font-md"
+          v-model="content"
+          placeholder="说点什么..."
+          style="height: 80rpx"
+        />
+        <view @click="sendDanmu" class="flex rounded p-2 ml-3 bg-main">
+          <text class="font text-white">发送</text>
+        </view>
+      </view>
+    </uni-popup>
+
+    <!-- 送礼物弹出层 -->
+    <uni-popup ref="giftRef" type="bottom">
+      <view class="bg-white" style="width: 750rpx; height: 590rpx">
+        <view style="height: 100rpx" class="flex justify-between align-center">
+          <text class="text-main font-md ml-3">礼物</text>
+          <view
+            class="flex align-center justify-center"
+            style="width: 100rpx; height: 100rpx"
+            @click="switchGift(0)"
+          >
+            <text class="iconfont">&#xe607;</text>
+          </view>
+        </view>
+        <swiper
+          :indicator-dots="true"
+          :duration="500"
+          style="height: 390rpx"
+          class="border-bottom border-top"
+        >
+          <swiper-item v-for="(item, index) in gifts" :key="index">
+            <view class="flex flex-wrap">
+              <view
+                style="width: 187.5rpx; height: 175rpx"
+                class="flex flex-column justify-center align-center"
+                v-for="(i, idx) in item"
+                :key="idx"
+                :class="giftActiveId === i.id ? 'border border-main' : ''"
+                @click="giftActiveId = i.id"
+              >
+                <image
+                  :src="i.image"
+                  style="width: 100rpx; height: 100rpx"
+                ></image>
+                <view class="flex mt-1">
+                  <text class="text-warning font mr-1">{{ i.name }}</text>
+                  <text class="text-secondary font">{{ i.coin }}</text>
+                </view>
+              </view>
+            </view>
+          </swiper-item>
+        </swiper>
+        <view style="height: 100rpx" class="flex align-center justify-end">
+          <view
+            class="flex align-center justify-center py-2 px-2 mr-3 rounded bg-warning"
+            @click="openCoin"
+          >
+            <text class="font">充值</text>
+          </view>
+          <view
+            class="flex align-center justify-center py-2 px-2 mr-3 rounded bg-main"
+            @click="sendGift"
+          >
+            <text class="font text-white">发送</text>
+          </view>
+        </view>
+      </view>
+    </uni-popup>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-const title = ref('Hello')
+import { ref, onMounted, onUnmounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+import http from '@/utils/request'
+import $C from '@/common/config'
+import FDanMu from '@/components/f-danmu.vue'
+import FGift from '@/components/f-gift.vue'
+import uniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup.vue'
+import { useSocketStore } from '@/stores/useSocketStore'
+
+interface GiftItem {
+  created_time: string
+  id: number
+  name: string
+  image: string
+  coin: number
+  updated_time: string
+}
+
+const socketStore = useSocketStore()
+
+// 观众列表
+const list = ref<any[]>([{}, {}, {}, {}, {}, {}, {}, {}])
+
+const liveId = ref(0)
+onLoad((options: any) => {
+  liveId.value = options.id
+  getLiveDetail()
+  getGifts()
+
+  joinOrLeaveLive('join')
+})
+onMounted(() => {})
+onUnmounted(() => {
+  joinOrLeaveLive('leave')
+  socketStore.closeSocket()
+})
+
+/**
+ * socket
+ */
+const joinOrLeaveLive = (type: 'join' | 'leave') => {
+  if (socketStore.socket) {
+    console.log('xxxxxxxxxx')
+    socketStore.socket.emit(type + 'Live', {
+      live_id: liveId.value,
+      token: 'token'
+    })
+  }
+}
+
+// 评论弹出层 开关
+const inputRef = ref<InstanceType<typeof uniPopup> | null>(null)
+const switchInput = (flag: 0 | 1) => {
+  if (flag) {
+    inputRef.value?.open()
+  } else {
+    inputRef.value?.close()
+  }
+}
+// 礼物弹出层 开关
+const giftRef = ref<InstanceType<typeof uniPopup> | null>(null)
+const switchGift = (flag: 0 | 1) => {
+  if (flag) {
+    giftRef.value?.open()
+  } else {
+    giftRef.value?.close()
+  }
+}
+const openCoin = () => {}
+
+/**
+ * 直播信息
+ */
+const sign = ref('')
+const liveDetail = ref({
+  created_time: '',
+  id: 1,
+  title: '',
+  cover: '',
+  user_id: 0,
+  look_count: 0,
+  coin: 0,
+  key: '',
+  status: 0,
+  userId: 0,
+  user: {
+    id: 0,
+    username: '',
+    avatar: ''
+  }
+})
+const getLiveDetail = () => {
+  http.get(`/live/read/${liveId.value}`).then((res: any) => {
+    liveDetail.value = res.data
+    sign.value = res.sign
+  })
+}
+/**
+ * 礼物
+ */
+const gifts = ref<GiftItem[][]>([]) // 礼物列表
+// 将礼物列表转为二维数组
+const getGifts = async () => {
+  let res = await http.get<GiftItem[]>('/gift/list')
+  let twoList = []
+  res = res.map((item) => {
+    item.image = $C.baseUrl + item.image
+    return item
+  })
+  while (res.length) {
+    let list = res.splice(0, 8)
+    twoList.push(list)
+  }
+  gifts.value = twoList
+}
+
+const giftActiveId = ref(0)
+const fGiftRef = ref<InstanceType<typeof FGift> | null>(null)
+const sendGift = () => {
+  let currentGift = gifts.value
+    .flat()
+    .find((item) => item.id === giftActiveId.value)
+  if (!currentGift) return
+  fGiftRef.value?.send(currentGift)
+}
+/**
+ * 发评论
+ */
+const danmuRef = ref<InstanceType<typeof FDanMu> | null>(null)
+const content = ref('')
+const sendDanmu = () => {
+  if (!content.value.length) {
+    return uni.showToast({
+      title: '评论内容不能为空',
+      icon: 'none'
+    })
+  }
+  danmuRef.value?.send({
+    content: content.value,
+    name: 'xx',
+    id: 1
+  })
+  content.value = ''
+  switchInput(0)
+}
+
+const back = () => {
+  uni.navigateBack({ delta: 1 })
+}
 </script>
 
-<style>
-.content {
-  display: flex;
-  flex-direction: column;
+<style lang="scss" scoped>
+.page {
+  flex: 1;
+  .icon-size {
+    width: 70rpx;
+    height: 70rpx;
+  }
+  .header {
+    position: fixed;
+    top: 100rpx;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    .anchor {
+      flex-direction: row;
+      align-items: center;
+      width: 325rpx;
+      height: 80rpx;
+      padding: 0 20rpx;
+      background-color: rgba(0, 0, 0, 0.4);
+      .icon-add {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+    .audience {
+      width: 325rpx;
+      background-color: rgba(0, 0, 0, 0.4);
+
+      flex-direction: row;
+      .icon-count {
+        justify-content: center;
+        align-items: center;
+      }
+    }
+  }
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120rpx;
+  }
+  .comment {
+    height: 120rpx;
+    background-color: #fff;
+  }
+}
+.btn {
+  justify-content: center;
   align-items: center;
-  justify-content: center;
+  height: 80rpx;
+  border-radius: 100rpx;
+  background-color: rgba(255, 255, 255, 0.12);
 }
-
-.logo {
-  height: 200rpx;
-  width: 200rpx;
-  margin-top: 200rpx;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 50rpx;
-}
-
-.text-area {
-  display: flex;
-  justify-content: center;
-}
-
-.title {
-  font-size: 36rpx;
-  color: #8f8f94;
+.btn-icon {
+  width: 80rpx;
+  margin-right: 20rpx;
 }
 </style>

@@ -6,3 +6,11 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+declare module '@hyoga/uni-socket.io' {
+  interface Socket {
+    on: (event: string, callback: (data: any) => void) => void
+    emit: (event: string, data: any) => void
+  }
+  export default function io(url: string, options?: any): Socket
+}
