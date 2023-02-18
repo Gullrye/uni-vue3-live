@@ -49,13 +49,25 @@
         </view>
       </view>
     </view>
+
+    <view class="f-divider"></view>
+    <FListItem
+      icon="iconfaxian"
+      title="我的金币"
+      :showRight="false"
+      @click="useAuthJump({ url: '/pages/coin/coin' })"
+    ></FListItem>
+    <FListItem icon="iconfaxian" title="我的直播">
+      <text class="text-muted font">666</text>
+    </FListItem>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { useSocketStore } from '@/stores/useSocketStore'
-import { onShow } from '@dcloudio/uni-app';
+import { onNavigationBarButtonTap, onShow } from '@dcloudio/uni-app'
+import { useAuthJump } from '@/hooks/useAuthJump'
+import FListItem from '@/components/f-list-item.vue'
 
 const socketStore = useSocketStore()
 const userInfo = socketStore.userInfo
@@ -65,6 +77,11 @@ const openLogin = () => {
     url: '../login/login'
   })
 }
+
+onNavigationBarButtonTap(() => {
+  console.log('onNavigationBarButtonTap')
+  useAuthJump({ url: '/pages/index/index' })
+})
 
 onShow(() => {
   socketStore.getUserInfo()
