@@ -164,6 +164,7 @@ import FDanMu from '@/components/f-danmu.vue'
 import FGift from '@/components/f-gift.vue'
 import uniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup.vue'
 import { useSocketStore } from '@/stores/useSocketStore'
+import { liveStatus } from '@/common/constant'
 
 interface GiftItem {
   created_time: string
@@ -190,18 +191,17 @@ onLoad((options: any) => {
 onMounted(() => {})
 onUnmounted(() => {
   joinOrLeaveLive('leave')
-  socketStore.closeSocket()
 })
 
 /**
  * socket
  */
 const joinOrLeaveLive = (type: 'join' | 'leave') => {
-  if (socketStore.socket) {
-    console.log('xxxxxxxxxx')
+  if (socketStore.socket && socketStore.token) {
+    console.log(type + '=================')
     socketStore.socket.emit(type + 'Live', {
       live_id: liveId.value,
-      token: 'token'
+      token: socketStore.token
     })
   }
 }
@@ -239,7 +239,7 @@ const liveDetail = ref({
   look_count: 0,
   coin: 0,
   key: '',
-  status: 0,
+  status: 0 as 0 | 1 | 2 | 3,
   userId: 0,
   user: {
     id: 0,
@@ -251,6 +251,17 @@ const getLiveDetail = () => {
   http.get(`/live/read/${liveId.value}`).then((res: any) => {
     liveDetail.value = res.data
     sign.value = res.sign
+
+    if (liveDetail.value.status !== 1) {
+      uni.showModal({
+        title: '提示',
+        content: '直播' + liveStatus[liveDetail.value.status],
+        showCancel: false,
+        success: () => {
+          uni.navigateBack()
+        }
+      })
+    }
   })
 }
 /**
@@ -298,6 +309,13 @@ const sendDanmu = () => {
     name: 'xx',
     id: 1
   })
+  if (socketStore.socket) {
+    socketStore.socket.emit('comment', {
+      live_id: liveId.value,
+      data: content.value,
+      token: socketStore.token
+    })
+  }
   content.value = ''
   switchInput(0)
 }

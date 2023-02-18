@@ -70,6 +70,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { onPullDownRefresh, onReachBottom } from '@dcloudio/uni-app'
 import http from '@/utils/request'
+import { liveStatus } from '@/common/constant'
 
 interface ListItem {
   coin: number
@@ -105,14 +106,8 @@ const getList = () => {
     })
 }
 const statusText = computed(() => {
-  return (status: number) => {
-    const map: Record<string, string> = {
-      0: '未开始',
-      1: '直播中',
-      2: '暂停',
-      3: '已结束'
-    }
-    return map[status]
+  return (status: 0 | 1 | 2 | 3) => {
+    return liveStatus[status]
   }
 })
 const openLive = (id: number) => {

@@ -11,6 +11,7 @@ interface State {
 interface Actions {
   closeSocket: () => void
   connectSocket: () => void
+  onSocketConnectHandler: () => void
   login: (userInfo: UserInfo) => void
   initUserInfo: () => void
   getUserInfo: () => void
@@ -35,12 +36,10 @@ export const useSocketStore = defineStore<string, State, {}, Actions>(
           transports: ['websocket'],
           timeout: 5000
         })
-        S.on('connect', (res) => {
-          this.socket = S
+        S.on('connect', () => {
           console.log('socket连接成功')
-          S.on('comment', (e) => {
-            console.log('ggggggggggggg')
-          })
+          this.socket = S
+          this.onSocketConnectHandler()
         })
         // 监听失败
         S.on('error', () => {
@@ -57,6 +56,22 @@ export const useSocketStore = defineStore<string, State, {}, Actions>(
         if (this.socket) {
           this.socket.close()
         }
+      },
+      onSocketConnectHandler() {
+        let S = this.socket
+        // 监听在线用户信息
+        S.on('online', (e: any) => {
+          console.log('online---')
+          console.log(e)
+        })
+        S.on('comment', (e: any) => {
+          console.log('comment---')
+          console.log(e)
+        })
+        S.on('gift', (e: any) => {
+          console.log('gift---')
+          console.log(e)
+        })
       },
 
       login(userInfo: UserInfo) {
