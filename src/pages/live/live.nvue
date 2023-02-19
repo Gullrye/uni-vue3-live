@@ -65,7 +65,7 @@
         </view>
       </view>
       <view class="flex-row align-center">
-        <view class="btn btn-icon">
+        <view class="btn btn-icon" @click="openCoin">
           <text class="iconfont text-white" style="font-size: 40px"
             >&#xe633;</text
           >
@@ -259,7 +259,12 @@ const switchGift = (flag: 0 | 1) => {
     giftRef.value?.close()
   }
 }
-const openCoin = () => {}
+const openCoin = () => {
+  console.log('cccccccccccccc')
+  uni.navigateTo({
+    url: '../coin/coin'
+  })
+}
 
 /**
  * 直播信息
