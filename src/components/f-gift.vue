@@ -8,12 +8,13 @@
       class="flex align-center pt-3"
       v-for="(item, index) in gifts"
       :key="index"
-      :ref="'cell' + index"
+      :ref="'cell' + item.id"
       insert-animation="default"
       delete-animation="default"
     >
       <view
-        style="width: 325rpx;
+        style="
+          width: 325rpx;
           background-image: linear-gradient(to right, #bcabb1, #65aaf0);
         "
         class="flex rounded-circle"
@@ -48,56 +49,7 @@ const dom = uni.requireNativePlugin('dom')
 export default {
   data() {
     return {
-      gifts: [
-        // {
-        //   id: 1,
-        //   avatar: 'https://www.baidu.com/favicon.ico',
-        //   username: 'gullrye',
-        //   gift_name: '鸡蛋',
-        //   gift_image: 'https://www.bilibili.com/favicon.ico',
-        //   num: 20
-        // },
-        // {
-        //   id: 2,
-        //   avatar: 'https://www.baidu.com/favicon.ico',
-        //   username: 'gullrye',
-        //   gift_name: '鸡蛋',
-        //   gift_image: 'https://www.bilibili.com/favicon.ico',
-        //   num: 20
-        // },
-        // {
-        //   id: 3,
-        //   avatar: 'https://www.baidu.com/favicon.ico',
-        //   username: 'gullrye',
-        //   gift_name: '鸡蛋',
-        //   gift_image: 'https://www.bilibili.com/favicon.ico',
-        //   num: 20
-        // },
-        // {
-        //   id: 4,
-        //   avatar: 'https://www.baidu.com/favicon.ico',
-        //   username: 'gullrye',
-        //   gift_name: '鸡蛋',
-        //   gift_image: 'https://www.bilibili.com/favicon.ico',
-        //   num: 20
-        // },
-        // {
-        //   id: 5,
-        //   avatar: 'https://www.baidu.com/favicon.ico',
-        //   username: 'gullrye',
-        //   gift_name: '鸡蛋',
-        //   gift_image: 'https://www.bilibili.com/favicon.ico',
-        //   num: 20
-        // },
-        // {
-        //   id: 6,
-        //   avatar: 'https://www.baidu.com/favicon.ico',
-        //   username: 'gullrye',
-        //   gift_name: '鸡蛋',
-        //   gift_image: 'https://www.bilibili.com/favicon.ico',
-        //   num: 20
-        // }
-      ]
+      gifts: []
     }
   },
   methods: {
@@ -118,7 +70,7 @@ export default {
     autoHide() {
       if (this.gifts.length) {
         setTimeout(() => {
-          this.gifts.splice(0, 1)
+          this.gifts.shift()
         }, 5000)
       }
     }

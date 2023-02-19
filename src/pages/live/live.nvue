@@ -55,7 +55,7 @@
     </view>
 
     <!-- 弹幕 -->
-    <FDanMu ref="danmuRef"></FDanMu>
+    <FDanMu ref="fDanMuRef"></FDanMu>
 
     <!-- 底部 -->
     <view class="footer flex-row align-center justify-between">
@@ -165,6 +165,7 @@ import FGift from '@/components/f-gift.vue'
 import uniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup.vue'
 import { useSocketStore } from '@/stores/useSocketStore'
 import { liveStatus } from '@/common/constant'
+import { useAuthJump } from '@/hooks/useAuthJump'
 
 interface GiftItem {
   created_time: string
@@ -178,7 +179,7 @@ interface GiftItem {
 const socketStore = useSocketStore()
 
 // 观众列表
-const list = ref<any[]>([{}, {}, {}, {}, {}, {}, {}, {}])
+const list = ref<any[]>([])
 
 const liveId = ref(0)
 onLoad((options: any) => {
@@ -187,10 +188,13 @@ onLoad((options: any) => {
   getGifts()
 
   joinOrLeaveLive('join')
+  // 监听 useSocketStore 中 emit 的 'live' 事件
+  uni.$on('live', handleLiveEvent)
 })
 onMounted(() => {})
 onUnmounted(() => {
   joinOrLeaveLive('leave')
+  uni.$off('live', handleLiveEvent)
 })
 
 /**
@@ -205,7 +209,38 @@ const joinOrLeaveLive = (type: 'join' | 'leave') => {
     })
   }
 }
+const handleLiveEvent = (e: { type: string; data: any }) => {
+  console.log(e)
+  let res = e.data
+  switch (e.type) {
+    case 'online':
+      if (res.action === 'join') {
+        list.value = res.data
+      }
+      break
+    case 'comment':
+      fDanMuRef.value?.send({
+        content: res.content,
+        name: res.user.name,
+        id: res.id
+      })
+      content.value = ''
+      switchInput(0)
+      break
+    case 'gift':
+      res.gift_image = $C.imageUrl + res.gift_image
+      liveDetail.value.coin += res.gift_coin * res.num
+      fGiftRef.value?.send(res)
+      // switchGift(0)
+      break
+    default:
+      break
+  }
+}
 
+/**
+ * 弹出层
+ */
 // 评论弹出层 开关
 const inputRef = ref<InstanceType<typeof uniPopup> | null>(null)
 const switchInput = (flag: 0 | 1) => {
@@ -252,16 +287,16 @@ const getLiveDetail = () => {
     liveDetail.value = res.data
     sign.value = res.sign
 
-    if (liveDetail.value.status !== 1) {
-      uni.showModal({
-        title: '提示',
-        content: '直播' + liveStatus[liveDetail.value.status],
-        showCancel: false,
-        success: () => {
-          uni.navigateBack()
-        }
-      })
-    }
+    // if (liveDetail.value.status !== 1) {
+    //   uni.showModal({
+    //     title: '提示',
+    //     content: '直播' + liveStatus[liveDetail.value.status],
+    //     showCancel: false,
+    //     success: () => {
+    //       uni.navigateBack()
+    //     }
+    //   })
+    // }
   })
 }
 /**
@@ -290,12 +325,19 @@ const sendGift = () => {
     .flat()
     .find((item) => item.id === giftActiveId.value)
   if (!currentGift) return
-  fGiftRef.value?.send(currentGift)
+  useAuthJump()
+  if (socketStore.socket) {
+    socketStore.socket.emit('gift', {
+      live_id: liveId.value,
+      gift_id: currentGift.id,
+      token: socketStore.token
+    })
+  }
 }
 /**
  * 发评论
  */
-const danmuRef = ref<InstanceType<typeof FDanMu> | null>(null)
+const fDanMuRef = ref<InstanceType<typeof FDanMu> | null>(null)
 const content = ref('')
 const sendDanmu = () => {
   if (!content.value.length) {
@@ -304,11 +346,7 @@ const sendDanmu = () => {
       icon: 'none'
     })
   }
-  danmuRef.value?.send({
-    content: content.value,
-    name: 'xx',
-    id: 1
-  })
+  useAuthJump()
   if (socketStore.socket) {
     socketStore.socket.emit('comment', {
       live_id: liveId.value,
@@ -316,8 +354,6 @@ const sendDanmu = () => {
       token: socketStore.token
     })
   }
-  content.value = ''
-  switchInput(0)
 }
 
 const back = () => {

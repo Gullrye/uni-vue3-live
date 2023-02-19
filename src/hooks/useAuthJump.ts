@@ -1,6 +1,6 @@
 import { useSocketStore } from '@/stores/useSocketStore'
 
-export const useAuthJump = (options: UniApp.NavigateToOptions) => {
+export const useAuthJump = (options?: UniApp.NavigateToOptions) => {
   const socketStore = useSocketStore()
 
   if (!socketStore.token) {
@@ -12,6 +12,8 @@ export const useAuthJump = (options: UniApp.NavigateToOptions) => {
       url: '/pages/login/login'
     })
   }
-  // uni.switchTab(options)
-  uni.navigateTo(options)
+  if (options) {
+    // uni.switchTab(options)
+    uni.navigateTo(options)
+  }
 }

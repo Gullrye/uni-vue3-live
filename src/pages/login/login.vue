@@ -78,7 +78,8 @@ onMounted(() => {
   } else {
     uni.showToast({
       title: '请先登录',
-      icon: 'none'
+      icon: 'none',
+      duration: 800
     })
     showLoading.value = false
   }

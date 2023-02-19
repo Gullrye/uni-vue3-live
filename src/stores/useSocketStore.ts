@@ -11,10 +11,10 @@ interface State {
 interface Actions {
   closeSocket: () => void
   connectSocket: () => void
-  onSocketConnectHandler: () => void
   login: (userInfo: UserInfo) => void
   initUserInfo: () => void
   getUserInfo: () => void
+  logout: () => void
 }
 
 export const useSocketStore = defineStore<string, State, {}, Actions>(
@@ -36,18 +36,67 @@ export const useSocketStore = defineStore<string, State, {}, Actions>(
           transports: ['websocket'],
           timeout: 5000
         })
+
+        const onlineEvent = (e: any) => {
+          uni.$emit('live', {
+            type: 'online',
+            data: e
+          })
+        }
+        const commentEvent = (e: any) => {
+          uni.$emit('live', {
+            type: 'comment',
+            data: e
+          })
+        }
+        const giftEvent = (e: any) => {
+          uni.$emit('live', {
+            type: 'gift',
+            data: e
+          })
+        }
+        const removeListener = () => {
+          if (S) {
+            S.removeListener('online', onlineEvent)
+            S.removeListener('comment', commentEvent)
+            S.removeListener('gift', giftEvent)
+          }
+        }
+
         S.on('connect', () => {
           console.log('socket连接成功')
           this.socket = S
-          this.onSocketConnectHandler()
+          // socket.io唯一链接id，可以监控这个id实现点对点通讯
+          // 如金币不足无法送礼、直播间未开通等，socket 会通过这个 id 通知
+          const { id } = S
+          S.on(id, (e) => {
+            console.log(e)
+            let res = e.data
+            if (res.action === 'error') {
+              let msg = res.payload
+              if (e.meta.notoast) {
+                return
+              }
+              return uni.showToast({
+                title: msg,
+                icon: 'none'
+              })
+            }
+          })
+
+          S.on('online', onlineEvent)
+          S.on('comment', commentEvent)
+          S.on('gift', giftEvent)
         })
         // 监听失败
         S.on('error', () => {
+          removeListener()
           this.socket = null
           console.log('连接失败')
         })
         // 监听断开
         S.on('disconnect', () => {
+          removeListener()
           this.socket = null
           console.log('已断开')
         })
@@ -57,23 +106,6 @@ export const useSocketStore = defineStore<string, State, {}, Actions>(
           this.socket.close()
         }
       },
-      onSocketConnectHandler() {
-        let S = this.socket
-        // 监听在线用户信息
-        S.on('online', (e: any) => {
-          console.log('online---')
-          console.log(e)
-        })
-        S.on('comment', (e: any) => {
-          console.log('comment---')
-          console.log(e)
-        })
-        S.on('gift', (e: any) => {
-          console.log('gift---')
-          console.log(e)
-        })
-      },
-
       login(userInfo: UserInfo) {
         this.userInfo = userInfo
         this.token = userInfo.token
@@ -100,6 +132,21 @@ export const useSocketStore = defineStore<string, State, {}, Actions>(
             data: JSON.stringify(res)
           })
         })
+      },
+      logout() {
+        http.post(
+          '/logout',
+          {},
+          {
+            token: true,
+            toast: false
+          }
+        )
+        this.closeSocket()
+        this.userInfo = null
+        this.token = ''
+        uni.removeStorageSync('userInfo')
+        uni.removeStorageSync('token')
       }
     }
   }

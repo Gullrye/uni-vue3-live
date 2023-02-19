@@ -11,4 +11,5 @@
 ## 思路
 
 - 发送礼物，触发 socket，获取到数据 data，通过 f-gift 组件中的 send 方法弹出送礼特效
-- 整个 socket 的逻辑放在了 Pinia 中，页面使用 Pinia 中的 Socket 进行 emit 等操作
+- 整个 socket 的逻辑放在了 Pinia 中，页面使用 Pinia 中的 socket 进行 emit 等操作
+- pinia 中通过 socket.on('comment', commentEvent) 监听 comment 事件，commentEvent 中通过 `uni.$emit('live', {type:'comment', data:e})` 触发 live 事件并传数据，live.nvue 中通过 `uni.$on('live'， handleLiveEvent)` 获取数据进行操作

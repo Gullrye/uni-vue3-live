@@ -11,6 +11,8 @@ declare module '@hyoga/uni-socket.io' {
   interface Socket {
     on: (event: string, callback: (data: any) => void) => void
     emit: (event: string, data: any) => void
+    removeListener: (event: string, callback: (data: any) => void) => void
+    id: string
   }
   export default function io(url: string, options?: any): Socket
 }

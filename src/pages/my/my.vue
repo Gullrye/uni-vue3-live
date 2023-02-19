@@ -60,6 +60,13 @@
     <FListItem icon="iconfaxian" title="我的直播">
       <text class="text-muted font">666</text>
     </FListItem>
+    <FListItem
+      icon="iconfaxian"
+      title="退出登录"
+      :showRight="false"
+      @click="logout"
+    >
+    </FListItem>
   </view>
 </template>
 
@@ -76,6 +83,14 @@ const openLogin = () => {
   uni.navigateTo({
     url: '../login/login'
   })
+}
+const logout = () => {
+  socketStore.logout()
+  setTimeout(() => {
+    uni.navigateTo({
+      url: '../login/login'
+    })
+  }, 1000)
 }
 
 onNavigationBarButtonTap(() => {
