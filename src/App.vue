@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
+import { useAuthJump } from './hooks/useAuthJump'
 import { useSocketStore } from './stores/useSocketStore'
 
 onLaunch(() => {
@@ -12,6 +13,7 @@ onLaunch(() => {
   })
 
   uni.onTabBarMidButtonTap(() => {
+    useAuthJump({ url: '/pages/create-live/create-live' })
     console.log('点击了中间按钮')
   })
 

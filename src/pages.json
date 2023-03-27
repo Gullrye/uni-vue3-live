@@ -57,6 +57,22 @@
         "navigationBarBackgroundColor": "#fff",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/create-live/create-live",
+      "style": {
+        "app-plus": {
+          "titleNView": false
+        }
+      }
+    },
+    {
+      "path": "pages/liveroom/liveroom",
+      "style": {
+        "app-plus": {
+          "titleNView": false
+        }
+      }
     }
   ],
   "globalStyle": {

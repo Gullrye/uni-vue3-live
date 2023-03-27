@@ -100,6 +100,38 @@ class Http {
   delete(url: string, data: RequestData, config?: CustomConfig) {
     return this.request({ url, data, method: 'DELETE' }, config)
   }
+  upload(url: string, data: any, onProgress: Function | boolean = false) {
+    return new Promise((resolve, reject) => {
+      const token = uni.getStorageSync('token')
+      const uploadTask = uni.uploadFile({
+        url: this.baseUrl + url,
+        filePath: data.filePath,
+        name: data.name || 'files',
+        header: { token },
+        formData: data.formData || {},
+        success: (res) => {
+          if (res.statusCode !== 200) {
+            resolve(false)
+            return uni.showToast({
+              title: '上传失败',
+              icon: 'none'
+            })
+          }
+          let message = JSON.parse(res.data)
+          resolve(message.data)
+        },
+        fail: (err) => {
+          reject(err)
+        }
+      })
+
+      uploadTask.onProgressUpdate((res) => {
+        if (typeof onProgress === 'function') {
+          onProgress(res.progress)
+        }
+      })
+    })
+  }
 }
 
 const http = new Http(config.baseUrl)
